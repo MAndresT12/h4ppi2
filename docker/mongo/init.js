@@ -4,11 +4,9 @@
  * Crea el usuario de la aplicación con permisos limitados (buena práctica de seguridad).
  */
 // db es la base de datos de mongo.
-//No es necesario este script de inicializacion, ya que mongo se inicializa con el usuario y la base de datos por defecto cuando usemos mongoose. 
 
 // Cambiar a la base de datos de la app
-db = db.getSiblingDB('h4ppi');
-
+db = db.getSiblingDB(process.env.MONGO_DATABASE);
 // Crear usuario de la app (con permisos solo sobre h4ppi, no sobre todo el servidor)
 
 db.createUser({
