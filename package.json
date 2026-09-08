@@ -1,0 +1,13 @@
+{
+  "name": "h4ppi2",
+  "private": true,
+  "description": "Laboratorio: reconstruir H4ppi desde cero con pnpm",
+  "scripts": {
+    "dev:api": "pnpm --filter @h4ppi2/api-gateway dev",
+    "seed": "pnpm --filter @h4ppi2/api-gateway seed",
+    "build:api": "pnpm --filter @h4ppi2/api-gateway build"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

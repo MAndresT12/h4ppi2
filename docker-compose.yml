@@ -1,0 +1,84 @@
+# # Ahora vamos a crear un docker-compose.yml pero solo para mongo, para que api-gateway se pueda conectar a mongo.
+
+# # Aqui se declara los contenedores que definen nuestro entorno
+# services:
+# # servicio mongo
+#   mongo:
+#     # imagen de mongo, si no existe, se descarga desde docker hub (por eso no es necesario hacer docker pull mongo:7)
+#     image: mongo:7
+#     container_name: h4ppi2-mongo
+
+#     # variables de entorno para mongo NO SUBIR A GIT
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: h4ppi
+#       MONGO_INITDB_ROOT_PASSWORD: h4ppi_secret
+
+#     # puerto de mongo, se expone al host (HOST : CONTAINER) 
+#     # Esto es para que el api-gateway se pueda conectar a mongo. WINDOWS:DOCKER, localhost:27017
+#     ports:
+#       - "27017:27017"
+
+#     # volumen para persistir los datos de mongo
+#     volumes:
+#       - mongo-data:/data/db
+
+# volumes:
+#   mongo-data:
+
+
+# Infra para DESARROLLAR api-gateway en el host (Node + pnpm).
+# Esto NO dockeriza el servicio Node. Redis y chat-service vienen después.
+
+# Redes para que los contenedores se puedan comunicar entre si.
+networks:
+  h4ppi2-net:
+    # driver: bridge es el tipo de red por defecto, se usa para que los contenedores se puedan comunicar entre si.
+    driver: bridge
+
+# Volumen para persistir los datos de mongo.
+volumes:
+  mongo-data:
+
+# Servicios que se van a ejecutar.
+services:
+  mongo:
+    image: mongo:7.0
+    # nombre del contenedor
+    container_name: h4ppi2-mongo
+    # restart: unless-stopped es para que el contenedor se reinicie si se detiene.
+    restart: unless-stopped
+    # variables de entorno para mongo NO SUBIR A GIT
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+      MONGO_APP_USERNAME: ${MONGO_APP_USERNAME}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD}
+    # puerto de mongo, se expone al host (HOST : CONTAINER) 
+    # Esto es para que el api-gateway se pueda conectar a mongo. WINDOWS:DOCKER, localhost:27017
+    ports:
+      - "27017:27017"
+    # volumen para persistir los datos de mongo
+    volumes:
+      - mongo-data:/data/db
+      # script para inicializar la base de datos, NO SUBIR A GIT 
+      - ./docker/mongo/init.js:/docker-entrypoint-initdb.d/init.js:ro
+    # red para que el contenedor se pueda comunicar con otros contenedores.
+    networks:
+      - h4ppi2-net
+    # healthcheck para que el contenedor se pueda reiniciar si no esta funcionando.
+    healthcheck:
+    # CMD, mongosh, --eval, db.adminCommand('ping') cada uno hace una tarea diferente. 
+    # CMD es el comando que se va a ejecutar.
+    # mongosh es el cliente de mongo.
+    # --eval es para ejecutar un comando de mongo.
+    # db.adminCommand('ping') es para verificar si la base de datos esta funcionando.
+    # interval: 10s es para que se verifique cada 10 segundos.
+    # timeout: 5s es para que se espere 5 segundos para que la tarea se complete.
+    # retries: 5 es para que se intenten 5 veces.
+    # start_period: 20s es para que se espere 20 segundos para que la tarea se complete.
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
