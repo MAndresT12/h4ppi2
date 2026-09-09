@@ -1,0 +1,1 @@
+console.log('👋 api-gateway boot check — tooling funcionando');

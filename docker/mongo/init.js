@@ -35,9 +35,10 @@ db.createCollection('notifications');
 db.createCollection('reports');
 
 print('✅  Colecciones creadas');
+//Solo es tipo "modelo" ojo
 
 // Los índices más críticos los creamos aquí también como respaldo
-// (Mongoose los crea al arrancar, pero si hay algún problema esto los garantiza)
+//Ya se crearan igual con Mongoose ponga la batuta
 
 db.users.createIndex({ location: '2dsphere' });
 db.users.createIndex({ email: 1 }, { unique: true });
